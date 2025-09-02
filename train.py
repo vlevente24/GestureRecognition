@@ -122,6 +122,13 @@ def main():
 
     # Modell inicializálás
     model = GestureRecognizer()  # 27 osztály a Jester datasetben
+    checkpoint_path = None # eg. "checkpoints/best_model_epochXX.pth" or None
+
+    if checkpoint_path is not None and os.path.exists(checkpoint_path):
+        model.load_state_dict(torch.load(checkpoint_path, map_location=device))
+        print(f"Loaded checkpoint: {checkpoint_path}")
+    else:
+        print("No checkpoint loaded, starting from scratch.")
 
     device = None
     if torch.cuda.is_available():
