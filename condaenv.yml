@@ -1,0 +1,13 @@
+name: gestrec
+dependencies:
+  - python=3.10
+  - tqdm
+  - pip
+  - pip:
+      - pandas
+      - numpy
+      - scipy
+      - torchvision
+      - scikit-learn
+      - torch
+      - pillow

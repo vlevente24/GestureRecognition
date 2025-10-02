@@ -3,7 +3,7 @@ import torch.nn as nn
 import torchvision.models as models
 
 class GestureRecognizer(nn.Module):
-    def __init__(self, num_classes=27, sample_duration=32):
+    def __init__(self, num_classes=27, sample_duration=22):
         super().__init__()
         self.sample_duration = sample_duration
 
@@ -20,7 +20,7 @@ class GestureRecognizer(nn.Module):
             stride=(1,1,1),
             padding=(1,1,1)
         )
-        self.bn3d = nn.BatchNorm3d(512) # layer normalization?
+        self.ln3d = nn.LayerNorm(512) # layer normalization
         self.relu = nn.ReLU(inplace=True)
         
         # Transformer Encoder blokk, amely tartalmaz Multihead Attention-t is
@@ -32,12 +32,8 @@ class GestureRecognizer(nn.Module):
         )
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=4)
         
-        # Globális átlagpooling csak a temporális dimenzió mentén
-        self.global_temporal_pool = nn.AdaptiveAvgPool1d(1)
-        
         # Klasszifikációs fej
         self.classifier = nn.Linear(512, num_classes)
-        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
         B, T, C, H, W = x.shape
@@ -51,12 +47,16 @@ class GestureRecognizer(nn.Module):
         features = features.permute(0, 2, 1, 3, 4)  # (B, C, T, h', w')
         
         # 3D conv blokk
-        x = self.relu(self.bn3d(self.conv3d(features)))  # (B, 512, T, h', w')
-        
+        x = self.conv3d(features)  # (B, 512, T, h', w')
+        x = x.permute(0, 2, 3, 4, 1)  # (B, T, h', w', 512) a LayerNorm-hoz
+        x = self.ln3d(x)  # layer normalization csatorák mentén
+        x = x.permute(0, 4, 1, 2, 3)  # vissza (B, 512, T, h', w')
+        x = self.relu(x)
+
         # Spatial pooling = térbeli dimenziók átlaga -> (B, 512, T)
         x = x.mean(dim=[3,4])  # átlagolás h' és w' dimenziókon
         
-        # Transformer Encoder a (T, B, C) formátumban várja a bemenetet
+        # Transformer Encoder a (T, B, C) = (seq, batch, features) formátumban várja a bemenetet
         x = x.permute(2, 0, 1)  # (T, B, 512)
         x = self.transformer_encoder(x)  # (T, B, 512)
         
@@ -64,8 +64,7 @@ class GestureRecognizer(nn.Module):
         x = x.mean(dim=0)  # (B, 512)
         
         logits = self.classifier(x)  # (B, num_classes)
-        probs = self.softmax(logits)
-        return probs
+        return logits
 
 if __name__ == '__main__':
     model = GestureRecognizer()
