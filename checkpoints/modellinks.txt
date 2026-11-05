@@ -1,0 +1,3 @@
+A detector és gesztusfelismerő modellek súlyai elérhetők az alábbi linken.
+
+https://drive.google.com/drive/folders/1e45Z3x3BK1imT4kJieCpLbxyi0Zp67mV?usp=sharing

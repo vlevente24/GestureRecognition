@@ -1,0 +1,97 @@
+# ---------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# ---------------------------------------------------------------
+# Environments
+# ---------------------------------------------------------------
+# condaenv.yml is intentionally tracked.
+.env
+.env.*
+.venv/
+venv/
+env/
+ENV/
+
+# ---------------------------------------------------------------
+# Model weights & training artifacts
+# ---------------------------------------------------------------
+# Only modellinks.txt is tracked inside checkpoints/; weight files are not.
+checkpoints/*
+!checkpoints/modellinks.txt
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.h5
+*.safetensors
+*.bin
+
+# Training logs / experiment trackers
+runs/
+logs/
+wandb/
+mlruns/
+lightning_logs/
+*.log
+
+# ---------------------------------------------------------------
+# Dataset
+# ---------------------------------------------------------------
+# The Jester dataset (videos, frames) is large and must not be committed.
+# Code and CSV files in dataset/ (class-index.csv, jester-label.csv) are kept.
+dataset/**/*.webm
+dataset/**/*.mp4
+dataset/**/*.avi
+dataset/**/*.mkv
+dataset/**/*.jpg
+dataset/**/*.jpeg
+dataset/**/*.png
+dataset/**/*.zip
+dataset/**/*.tar
+dataset/**/*.tar.gz
+dataset/**/*.gz
+dataset/Train/
+dataset/Validation/
+dataset/Test/
+dataset/jester-v1-*.csv
+dataset/jester/
+dataset/data/
+dataset/raw/
+dataset/processed/
+dataset/cache/
+
+# ---------------------------------------------------------------
+# Media
+# ---------------------------------------------------------------
+# media/ is tracked, since the README references the figure and demo video.
+# If the video exceeds the hosting size limit, uncomment the line below:
+# media/*.mp4
+
+# ---------------------------------------------------------------
+# IDE / editor
+# ---------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ---------------------------------------------------------------
+# OS
+# ---------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -3,7 +3,7 @@ import torch.nn as nn
 import torchvision.models as models
 
 class GestureRecognizer(nn.Module):
-    def __init__(self, num_classes=27, sample_duration=22):
+    def __init__(self, num_classes=27, sample_duration=32):
         super().__init__()
         self.sample_duration = sample_duration
 
@@ -22,17 +22,19 @@ class GestureRecognizer(nn.Module):
         )
         self.ln3d = nn.LayerNorm(512) # layer normalization
         self.relu = nn.ReLU(inplace=True)
+        self.dropout3d = nn.Dropout3d(p=0.1)
         
         # Transformer Encoder blokk, amely tartalmaz Multihead Attention-t is
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=512,
             nhead=8,
             dim_feedforward=2048,
-            dropout=0.1
+            dropout=0.2
         )
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=4)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=6)
         
         # Klasszifikációs fej
+        self.dropout = nn.Dropout(p=0.2)
         self.classifier = nn.Linear(512, num_classes)
 
     def forward(self, x):
@@ -52,6 +54,7 @@ class GestureRecognizer(nn.Module):
         x = self.ln3d(x)  # layer normalization csatorák mentén
         x = x.permute(0, 4, 1, 2, 3)  # vissza (B, 512, T, h', w')
         x = self.relu(x)
+        x = self.dropout3d(x)
 
         # Spatial pooling = térbeli dimenziók átlaga -> (B, 512, T)
         x = x.mean(dim=[3,4])  # átlagolás h' és w' dimenziókon
@@ -63,6 +66,8 @@ class GestureRecognizer(nn.Module):
         # Globális időbeli pool (átlagolás T dimenzió mentén)
         x = x.mean(dim=0)  # (B, 512)
         
+        # Klasszifikációs fej
+        x = self.dropout(x)
         logits = self.classifier(x)  # (B, num_classes)
         return logits
 
