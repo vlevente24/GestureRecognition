@@ -1,4 +1,4 @@
-# Gesture Recognizer
+# Hand Gesture Recognizer
 
 **Real-time dynamic hand gesture recognition from a plain RGB camera, built on a hybrid 3D-CNN + Transformer architecture.**
 
